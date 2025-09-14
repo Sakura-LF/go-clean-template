@@ -1,0 +1,21 @@
+app:
+  name: go-clean-template
+  version: 1.0.0
+http:
+  port: 8080
+  use_prefork_mode: false
+logger:
+  level: debug
+pg:
+  pool_max: 2
+  url: postgres://user:myAwEsOm3pa55@w0rd@localhost:5432/db
+grpc:
+  port: 8081
+rmq:
+  rpc_server: rpc_server
+  rpc_client: rpc_client
+  url: amqp://guest:guest@localhost:5672/
+metrics:
+  enabled: true
+swagger:
+  enabled: true
