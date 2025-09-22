@@ -5,8 +5,25 @@ import (
 
 	"github.com/evrone/go-clean-template/internal/controller/http/v1/request"
 	"github.com/evrone/go-clean-template/internal/entity"
-	"github.com/gofiber/fiber/v2"
+	"github.com/evrone/go-clean-template/internal/usecase"
+	"github.com/evrone/go-clean-template/pkg/logger"
+	"github.com/go-playground/validator/v10"
+	"github.com/gofiber/fiber/v3"
 )
+
+type TranslationHandler struct {
+	t usecase.Translation
+	l logger.Interface
+	v *validator.Validate
+}
+
+func NewTranslationHandler(t usecase.Translation, l logger.Interface) *TranslationHandler {
+	return &TranslationHandler{
+		t: t,
+		l: l,
+		v: validator.New(validator.WithRequiredStructEnabled()),
+	}
+}
 
 // @Summary     Show history
 // @Description Show all translation history
@@ -17,8 +34,8 @@ import (
 // @Success     200 {object} entity.TranslationHistory
 // @Failure     500 {object} response.Error
 // @Router      /translation/history [get]
-func (r *V1) history(ctx *fiber.Ctx) error {
-	translationHistory, err := r.t.History(ctx.UserContext())
+func (r *TranslationHandler) history(ctx fiber.Ctx) error {
+	translationHistory, err := r.t.History(ctx)
 	if err != nil {
 		r.l.Error().Err(err).Msg("http - v1 - doTranslate")
 
@@ -39,10 +56,10 @@ func (r *V1) history(ctx *fiber.Ctx) error {
 // @Failure     400 {object} response.Error
 // @Failure     500 {object} response.Error
 // @Router      /translation/do-translate [post]
-func (r *V1) doTranslate(ctx *fiber.Ctx) error {
+func (r *TranslationHandler) doTranslate(ctx fiber.Ctx) error {
 	var body request.Translate
 
-	if err := ctx.BodyParser(&body); err != nil {
+	if err := ctx.Bind().Body(&body); err != nil {
 		r.l.Error().Err(err).Msg("http - v1 - doTranslate")
 
 		return errorResponse(ctx, http.StatusBadRequest, "invalid request body")
@@ -55,7 +72,7 @@ func (r *V1) doTranslate(ctx *fiber.Ctx) error {
 	}
 
 	translation, err := r.t.Translate(
-		ctx.UserContext(),
+		ctx,
 		entity.Translation{
 			Source:      body.Source,
 			Destination: body.Destination,

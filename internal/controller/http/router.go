@@ -2,17 +2,13 @@
 package http
 
 import (
-	"net/http"
-
-	"github.com/ansrivas/fiberprometheus/v2"
 	"github.com/evrone/go-clean-template/config"
 	_ "github.com/evrone/go-clean-template/docs" // Swagger docs.
 	"github.com/evrone/go-clean-template/internal/controller/http/middleware"
-	v1 "github.com/evrone/go-clean-template/internal/controller/http/v1"
+	"github.com/evrone/go-clean-template/internal/controller/http/v1"
 	"github.com/evrone/go-clean-template/internal/usecase"
 	"github.com/evrone/go-clean-template/pkg/logger"
-	"github.com/gofiber/fiber/v2"
-	"github.com/gofiber/swagger"
+	"github.com/gofiber/fiber/v3"
 )
 
 // NewRouter -.
@@ -27,20 +23,10 @@ func NewRouter(app *fiber.App, cfg *config.Config, t usecase.Translation, l logg
 	app.Use(middleware.Logger(l))
 	app.Use(middleware.Recovery(l))
 
-	// Prometheus metrics
-	if cfg.Metrics.Enabled {
-		prometheus := fiberprometheus.New("my-service-name")
-		prometheus.RegisterAt(app, "/metrics")
-		app.Use(prometheus.Middleware)
-	}
-
 	// Swagger
-	if cfg.Swagger.Enabled {
-		app.Get("/swagger/*", swagger.HandlerDefault)
-	}
-
-	// K8s probe
-	app.Get("/healthz", func(ctx *fiber.Ctx) error { return ctx.SendStatus(http.StatusOK) })
+	//if cfg.Swagger.Enabled {
+	//	app.Get("/swagger/*", swagger.HandlerDefault)
+	//}
 
 	// Routers
 	apiV1Group := app.Group("/v1")

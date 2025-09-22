@@ -1,6 +1,8 @@
 package config
 
 import (
+	"time"
+
 	"github.com/spf13/viper"
 )
 
@@ -9,6 +11,7 @@ type (
 	Config struct {
 		App     App
 		HTTP    HTTP
+		Data    Data
 		Log     Log
 		PG      PG
 		GRPC    GRPC
@@ -27,6 +30,26 @@ type (
 	HTTP struct {
 		Port           string
 		UsePreforkMode bool
+	}
+
+	Data struct {
+		DataBase DBConfig
+		Redis    RedisConfig
+	}
+
+	DBConfig struct {
+		Driver           string        `mapstructure:"driver" yaml:"driver"`
+		Source           string        `mapstructure:"source" yaml:"source"`
+		ReconnectionNum  int           `mapstructure:"reconnection_num" yaml:"reconnection_num"`
+		ReconnectionTime time.Duration `mapstructure:"reconnection_time" yaml:"reconnection_time"`
+	}
+
+	RedisConfig struct {
+		Addr         string        `json:"addr"`
+		Username     string        `json:"username"`
+		Password     string        `json:"password"`
+		ReadTimeout  time.Duration `mapstructure:"readTimeout" yaml:"readTimeout" json:"readTimeout"`
+		WriteTimeout time.Duration `mapstructure:"writeTimeout" yaml:"writeTimeout" json:"writeTimeout"`
 	}
 
 	// Log -.

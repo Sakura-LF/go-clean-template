@@ -4,8 +4,9 @@ package httpserver
 import (
 	"time"
 
+	"github.com/go-playground/validator/v10"
 	"github.com/goccy/go-json"
-	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v3"
 )
 
 const (
@@ -27,6 +28,15 @@ type Server struct {
 	shutdownTimeout time.Duration
 }
 
+type structValidator struct {
+	validate *validator.Validate
+}
+
+// Validate Validator needs to implement the Validate method
+func (v *structValidator) Validate(out any) error {
+	return v.validate.Struct(out)
+}
+
 // New -.
 func New(opts ...Option) *Server {
 	s := &Server{
@@ -44,11 +54,11 @@ func New(opts ...Option) *Server {
 	}
 
 	app := fiber.New(fiber.Config{
-		Prefork:      s.prefork,
-		ReadTimeout:  s.readTimeout,
-		WriteTimeout: s.writeTimeout,
-		JSONDecoder:  json.Unmarshal,
-		JSONEncoder:  json.Marshal,
+		ReadTimeout:     s.readTimeout,
+		WriteTimeout:    s.writeTimeout,
+		JSONDecoder:     json.Unmarshal,
+		JSONEncoder:     json.Marshal,
+		StructValidator: &structValidator{validate: validator.New()},
 	})
 
 	s.App = app
@@ -59,7 +69,10 @@ func New(opts ...Option) *Server {
 // Start -.
 func (s *Server) Start() {
 	go func() {
-		s.notify <- s.App.Listen(s.address)
+		s.notify <- s.App.Listen(s.address, fiber.ListenConfig{
+			EnablePrefork:     s.prefork,
+			EnablePrintRoutes: true,
+		})
 
 		close(s.notify)
 	}()

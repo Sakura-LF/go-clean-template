@@ -8,8 +8,8 @@ import (
 	"github.com/rs/zerolog"
 )
 
-// Interface -.
-type Interface interface {
+// LoggerEvent Interface -.
+type LoggerEvent interface {
 	Debug() *zerolog.Event
 	Info() *zerolog.Event
 	Warn() *zerolog.Event
@@ -21,8 +21,6 @@ type Interface interface {
 type Logger struct {
 	logger *zerolog.Logger
 }
-
-var _ Interface = (*Logger)(nil)
 
 // New -.
 func New(level string) *Logger {

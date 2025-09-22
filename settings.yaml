@@ -3,7 +3,21 @@ app:
   version: 1.0.0
 http:
   port: 8080
-  use_prefork_mode: false
+  use_prefork_mode: true
+data:
+  database:
+    driver: postgres
+    host: localhost
+    port: 5432
+    db_name: db
+    user: root
+    password: myAwEsOm3pa55
+  redis:
+    addr: 192.168.233.128:6379
+    username: default
+    password: redis_jFFiD3
+    read_timeout: 0.2s
+    write_timeout: 0.2s
 logger:
   level: debug
 pg:

@@ -11,7 +11,8 @@ import (
 	"github.com/evrone/go-clean-template/internal/controller/http"
 	"github.com/evrone/go-clean-template/internal/repo/persistent"
 	"github.com/evrone/go-clean-template/internal/repo/webapi"
-	"github.com/evrone/go-clean-template/internal/usecase/translation"
+	"github.com/evrone/go-clean-template/internal/usecase"
+	"github.com/evrone/go-clean-template/pkg/data_source"
 	"github.com/evrone/go-clean-template/pkg/httpserver"
 	"github.com/evrone/go-clean-template/pkg/logger"
 	"github.com/evrone/go-clean-template/pkg/postgres"
@@ -21,16 +22,16 @@ import (
 func Run(cfg *config.Config) {
 	l := logger.New(cfg.Log.Level)
 
-	// Repository
-	pg, err := postgres.New(cfg.PG.URL, postgres.MaxPoolSize(cfg.PG.PoolMax))
+	// Data Source
+	pg, err := data_source.NewDataSource(cfg.Data, postgres.MaxPoolSize(cfg.PG.PoolMax))
 	if err != nil {
-		l.Fatal().Err(fmt.Errorf("app - Run - postgres.New: %w", err))
+		l.Fatal().Err(fmt.Errorf("app - Run - postgres.NewUseCase: %w", err))
 	}
 	defer pg.Close()
 
 	// Use-Case
-	translationUseCase := translation.New(
-		persistent.New(pg),
+	translationUseCase := usecase.NewTranslationUseCase(
+		persistent.NewTranslationRepo(pg),
 		webapi.New(),
 	)
 

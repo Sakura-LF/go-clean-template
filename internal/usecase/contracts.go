@@ -7,8 +7,6 @@ import (
 	"github.com/evrone/go-clean-template/internal/entity"
 )
 
-//go:generate mockgen -source=interfaces.go -destination=./mocks_usecase_test.go -package=usecase_test
-
 type (
 	// Translation -.
 	Translation interface {
@@ -16,3 +14,5 @@ type (
 		History(context.Context) (entity.TranslationHistory, error)
 	}
 )
+
+type ()
